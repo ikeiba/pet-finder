@@ -1,0 +1,3 @@
+pandas
+category-encoders
+scikit-learn
