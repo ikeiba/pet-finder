@@ -8,6 +8,7 @@ from category_encoders import TargetEncoder
 #We first define the columns groups. Each group will be applied a different preprocessing 
 #technique (scaling, one-hot encoding or target-encoding)
 
+
 numeric_cols = ['Age', 'Fee', 'PhotoAmt', 'VideoAmt', 'Image_Brightness', 'Subject_Focus_Ratio', "Crop_Confidence", "Visual_Puppy_Score", "NLP_Sentiment_Score", "NLP_Emotional_Intensity", "Name_length"]
 onehot_enc_cols = ['Type', 'Gender', 'Vaccinated', 'Dewormed', 'Sterilized', 'Health', 'RescuerID']
 target_enc_cols = ['Breed1', 'Breed2', 'State']
@@ -16,6 +17,19 @@ preprocessor = ColumnTransformer (transformers = [
     ("standard_scaler", StandardScaler(), numeric_cols),
     ("one_hot_enc", OneHotEncoder(handle_unknown="ignore"), onehot_enc_cols),
     ("target_enc",TargetEncoder(), target_enc_cols)
+], remainder='passthrough')
+
+
+#For original data we only need the columns that were in the original csv
+orig_numeric_cols = ['Age', 'Fee', 'PhotoAmt', 'VideoAmt', 'Quantity']
+orig_onehot_enc_cols = ['Type', 'Gender', 'Vaccinated', 'Dewormed', 'Sterilized', 'Health', 'RescuerID', 'Color1', 'Color2', 'Color3', 'MaturitySize', 'FurLength']
+orig_target_enc_cols = ['Breed1', 'Breed2', 'State']
+
+
+originaldf_preprocessor = ColumnTransformer (transformers = [
+    ("standard_scaler", StandardScaler(), orig_numeric_cols),
+    ("one_hot_enc", OneHotEncoder(handle_unknown="ignore", sparse_output=False), orig_onehot_enc_cols),
+    ("target_enc",TargetEncoder(), orig_target_enc_cols)
 ], remainder='passthrough')
 
 
