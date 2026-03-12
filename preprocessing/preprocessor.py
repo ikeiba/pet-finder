@@ -2,7 +2,7 @@
 
 from sklearn.compose import ColumnTransformer
 from sklearn.preprocessing import StandardScaler, OneHotEncoder
-from category_encoders import TargetEncoder 
+from category_encoders import TargetEncoder, LeaveOneOutEncoder 
 
 
 #We first define the columns groups. Each group will be applied a different preprocessing 
@@ -10,28 +10,61 @@ from category_encoders import TargetEncoder
 
 
 numeric_cols = ['Age', 'Fee', 'PhotoAmt', 'VideoAmt', 'Image_Brightness', 'Subject_Focus_Ratio', "Crop_Confidence", "Visual_Puppy_Score", "NLP_Sentiment_Score", "NLP_Emotional_Intensity", "Name_length"]
-onehot_enc_cols = ['Type', 'Gender', 'Vaccinated', 'Dewormed', 'Sterilized', 'Health', 'RescuerID']
-target_enc_cols = ['Breed1', 'Breed2', 'State']
+onehot_enc_cols = ['Type', 'Gender', 'Vaccinated', 'Dewormed', 'Sterilized', 'Health', 'Color1', 'Color2', 'Color3', 'MaturitySize', 'FurLength']
+target_enc_cols = ['Breed1', 'Breed2', 'State',"RescuerID"]
+looe = ['Type', 'Gender', 'Vaccinated', 'Dewormed', 'Sterilized', 'Health', 'Color1', 'Color2', 'Color3', 'MaturitySize', 'FurLength','Breed1', 'Breed2', 'State',"RescuerID"]
 
-preprocessor = ColumnTransformer (transformers = [
+preprocessorClassic = ColumnTransformer (transformers = [
     ("standard_scaler", StandardScaler(), numeric_cols),
-    ("one_hot_enc", OneHotEncoder(handle_unknown="ignore"), onehot_enc_cols),
+    ("one_hot_enc", OneHotEncoder(handle_unknown="ignore", sparse_output=False), onehot_enc_cols),
     ("target_enc",TargetEncoder(), target_enc_cols)
 ], remainder='passthrough')
+
+preprocessorLOEE_OH = ColumnTransformer (transformers = [
+    ("standard_scaler", StandardScaler(), numeric_cols),
+    ("one_hot_enc", OneHotEncoder(handle_unknown="ignore", sparse_output=False), onehot_enc_cols),
+    ("LOOE", LeaveOneOutEncoder(sigma=0.05, random_state=42), target_enc_cols)
+], remainder='passthrough')
+
+preprocessorLOEEALL = ColumnTransformer (transformers = [
+    ("standard_scaler", StandardScaler(), numeric_cols),
+    ("LOOE", LeaveOneOutEncoder(sigma=0.05, random_state=42), looe)
+
+    ], remainder='passthrough')
+
+preprocessorLOEE_oh_TE_te = ColumnTransformer (transformers = [
+    ("standard_scaler", StandardScaler(), numeric_cols),
+    ("LOOE", LeaveOneOutEncoder(sigma=0.05, random_state=42), onehot_enc_cols),
+    ("target_enc",TargetEncoder(), target_enc_cols)
+
+    ], remainder='passthrough')
+
+
+preprocessorLOEE_te_TE_oh = ColumnTransformer (transformers = [
+    ("standard_scaler", StandardScaler(), numeric_cols),
+    ("LOOE", LeaveOneOutEncoder(sigma=0.05, random_state=42), target_enc_cols),
+    ("target_enc",TargetEncoder(), onehot_enc_cols)
+
+    ], remainder='passthrough')
+
+preprocessorTEALL = ColumnTransformer (transformers = [
+    ("standard_scaler", StandardScaler(), numeric_cols),
+    ("target_enc",TargetEncoder(), looe)
+
+    ], remainder='passthrough')
 
 
 #For original data we only need the columns that were in the original csv
 orig_numeric_cols = ['Age', 'Fee', 'PhotoAmt', 'VideoAmt', 'Quantity']
 orig_onehot_enc_cols = ['Type', 'Gender', 'Vaccinated', 'Dewormed', 'Sterilized', 'Health', 'RescuerID', 'Color1', 'Color2', 'Color3', 'MaturitySize', 'FurLength']
 orig_target_enc_cols = ['Breed1', 'Breed2', 'State']
+original_looe = ['Type', 'Gender', 'Vaccinated', 'Dewormed', 'Sterilized', 'Health', 'RescuerID', 'Color1', 'Color2', 'Color3', 'MaturitySize', 'FurLength','Breed1', 'Breed2', 'State']
 
 
-originaldf_preprocessor = ColumnTransformer (transformers = [
+original_preprocessorLOEEALL = ColumnTransformer (transformers = [
     ("standard_scaler", StandardScaler(), orig_numeric_cols),
-    ("one_hot_enc", OneHotEncoder(handle_unknown="ignore", sparse_output=False), orig_onehot_enc_cols),
-    ("target_enc",TargetEncoder(), orig_target_enc_cols)
-], remainder='passthrough')
-
+    ("LOOE", LeaveOneOutEncoder(sigma=0.05, random_state=42), original_looe)
+    ], remainder='passthrough')
 
 
 """Example of Usage in a Pipeline with Optuna and cros validation 
