@@ -22,7 +22,6 @@ print(data_train.dtypes)
 
 print(f"Number of training samples: {data_train.shape}")
 
-#? Directo: le pasas la columna y él cuenta los samples por categoría
 sns.countplot(x='AdoptionSpeed', data=data_train)
 
 plt.title('AdoptionSpeed distribution')
