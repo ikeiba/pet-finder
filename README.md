@@ -325,7 +325,7 @@ For reproducibility, execute notebooks in the following order:
 ---
 
 <div align="center">
-  <sub>Antigravity AML Deliverable · PetFinder Adoption Speed Prediction</sub>
+  <sub>PetFinder Adoption Speed Prediction</sub>
   <br>
   <sub>Documentation available in <b><a href="README.md">English</a></b> and <b><a href="README.es.md">Español</a></b></sub>
 </div>
